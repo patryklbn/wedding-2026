@@ -50,13 +50,13 @@ export const translations = {
     location: { en: 'Location', pl: 'Lokalizacja' },
     estate: { en: 'The Estate', pl: 'Posiadłość' },
     estateDesc: {
-      en: 'A stunning 19th-century courtyard venue set within the beautiful Broxmouth Park estate, featuring elegant architecture and picturesque Scottish countryside views.',
-      pl: 'Piękne miejsce z XIX-wiecznym dziedzińcem, położone na terenie posiadłości Broxmouth Park, z elegancką architekturą i malowniczymi widokami na szkocką wieś.',
+      en: 'A restored 19th-century courtyard venue in Broxmouth Park, surrounded by countryside just outside Dunbar.',
+      pl: 'Odrestaurowane miejsce z XIX-wiecznym dziedzińcem w Broxmouth Park, otoczone wiejskim krajobrazem tuż za Dunbar.',
     },
-    atmosphere: { en: 'Atmosphere', pl: 'Atmosfera' },
+    atmosphere: { en: 'The Feel', pl: 'Atmosfera' },
     atmosphereDesc: {
-      en: 'Intimate and romantic, the courtyard provides a magical backdrop for our celebration, blending historic charm with natural beauty.',
-      pl: 'Kameralny i romantyczny dziedziniec stanowi magiczną scenerię naszego święta, łącząc historyczny urok z naturalnym pięknem.',
+      en: 'Relaxed, intimate and easy-going — with space to celebrate at your own pace.',
+      pl: 'Luźna, kameralna i swobodna atmosfera — z przestrzenią do świętowania we własnym tempie.',
     },
     viewMap: { en: 'View on Google Maps', pl: 'Zobacz na Google Maps' },
   },
@@ -65,6 +65,10 @@ export const translations = {
   schedule: {
     heading: { en: 'The Day', pl: 'Plan Dnia' },
     subtitle: { en: 'Wedding Day Schedule', pl: 'Harmonogram dnia ślubu' },
+    disclaimer: {
+      en: 'This is the planned timeline for the day — small changes may happen closer to the wedding.',
+      pl: 'To planowany harmonogram dnia — drobne zmiany mogą pojawić się bliżej ślubu.',
+    },
     date: { en: 'Saturday, 28th November 2026', pl: 'Sobota, 28 listopada 2026' },
     locationLine: {
       en: 'Broxmouth Courtyard, Dunbar, Scotland EH42 1QW',
@@ -102,6 +106,9 @@ export const translations = {
         pl: 'Ceilidh, DJ, tańce i zabawa do późna.',
       },
     },
+    addToCalendar: { en: 'Add to Calendar', pl: 'Dodaj do kalendarza' },
+    downloadIcs: { en: 'Apple / ICS', pl: 'Apple / ICS' },
+    googleCalendar: { en: 'Google Calendar', pl: 'Google Calendar' },
     dayAfter: {
       heading: { en: 'The Day After', pl: 'Dzień po' },
       subtitle: { en: 'Sunday Gathering', pl: 'Niedzielne spotkanie' },
@@ -178,8 +185,8 @@ export const translations = {
     heading: { en: 'Honeymoon Fund', pl: 'Fundusz na podróż poślubną' },
     subtitle: { en: "If you'd like to contribute", pl: 'Jeśli chcielibyście się dołożyć' },
     text: {
-      en: 'Your presence is the greatest gift. If you would like to contribute to our honeymoon, you can do so below.',
-      pl: 'Wasza obecność jest najlepszym prezentem. Jeśli chcielibyście dołożyć się do naszej podróży poślubnej, możecie to zrobić poniżej.',
+      en: "Your presence is the greatest gift. If you'd like to contribute to our honeymoon, you can do so via Monzo using the link below. No Monzo account required.",
+      pl: 'Wasza obecność jest najlepszym prezentem. Jeśli chcielibyście dołożyć się do naszej podróży poślubnej, możecie to zrobić przez Monzo korzystając z poniższego linku. Konto Monzo nie jest wymagane.',
     },
     button: { en: 'Contribute via Monzo', pl: 'Wpłać przez Monzo' },
   },
@@ -191,8 +198,8 @@ export const translations = {
     gettingThere: { en: 'Getting to Broxmouth', pl: 'Dojazd do Broxmouth' },
     byCar: { en: 'By Car', pl: 'Samochodem' },
     byCarDesc: {
-      en: 'Broxmouth Park is located just off the A1, approximately 30 miles east of Edinburgh. The postcode EH42 1QX will take you directly to the estate entrance. Free parking is available on site.',
-      pl: 'Broxmouth Park znajduje się tuż przy A1, około 50 km na wschód od Edynburga. Kod pocztowy EH42 1QX doprowadzi bezpośrednio do wjazdu na teren posiadłości. Bezpłatny parking na miejscu.',
+      en: 'Broxmouth Park is located just off the A1, approximately 30 miles east of Edinburgh. The postcode EH42 1QW will take you directly to the estate entrance. Free parking is available on site.',
+      pl: 'Broxmouth Park znajduje się tuż przy A1, około 50 km na wschód od Edynburga. Kod pocztowy EH42 1QW doprowadzi bezpośrednio do wjazdu na teren posiadłości. Bezpłatny parking na miejscu.',
     },
     byTrain: { en: 'By Train', pl: 'Pociągiem' },
     byTrainDesc: {
@@ -204,15 +211,20 @@ export const translations = {
       en: 'Edinburgh Airport is approximately 40 miles from the venue. Car hire is available at the airport, or you can take the tram to Edinburgh city centre and connect by train.',
       pl: 'Lotnisko w Edynburgu znajduje się około 65 km od miejsca. Na lotnisku dostępna jest wypożyczalnia samochodów, lub można dojechać tramwajem do centrum Edynburga i przesiąść się na pociąg.',
     },
+    byCoach: { en: 'Coach Transport', pl: 'Autokar' },
+    byCoachDesc: {
+      en: 'We are considering arranging a coach from Edinburgh to Broxmouth Courtyard and back on the wedding day. If confirmed, full details will be shared closer to the wedding.',
+      pl: 'Rozważamy zorganizowanie autokaru z Edynburga do Broxmouth Courtyard i z powrotem w dniu ślubu. Jeśli się to potwierdzi, szczegóły zostaną udostępnione bliżej terminu.',
+    },
     whereToStay: { en: 'Where to Stay', pl: 'Gdzie się zatrzymać' },
     fromVenue: { en: 'from venue', pl: 'od miejsca' },
     taxiServices: { en: 'Taxi Services', pl: 'Taksówki' },
     taxiDesc: {
-      en: 'We recommend booking taxis in advance, especially for the evening. Local taxi companies include Dunbar Taxis and East Lothian Cabs.',
-      pl: 'Zalecamy rezerwację taksówek z wyprzedzeniem, szczególnie na wieczór. Lokalne firmy taksówkowe to Dunbar Taxis i East Lothian Cabs.',
+      en: 'We recommend booking taxis in advance, especially for the evening. Local taxi services operate in Dunbar and the wider East Lothian area, including East Lothian Cabs and other local operators.',
+      pl: 'Zalecamy rezerwację taksówek z wyprzedzeniem, szczególnie na wieczór. Lokalne usługi taksówkowe działają w Dunbar i na terenie East Lothian, w tym East Lothian Cabs i inni lokalni przewoźnicy.',
     },
     hotels: {
-      rocks: { en: 'Charming boutique hotel in the heart of Dunbar', pl: 'Urokliwy butikowy hotel w sercu Dunbar' },
+      bayswell: { en: 'Classic seaside hotel with comfortable rooms and parking', pl: 'Klasyczny nadmorski hotel z wygodnymi pokojami i parkingiem' },
       hillside: { en: 'Comfortable accommodation with sea views', pl: 'Komfortowy nocleg z widokiem na morze' },
       dunmuir: { en: 'Modern hotel with excellent amenities', pl: 'Nowoczesny hotel ze świetnymi udogodnieniami' },
     },
@@ -228,6 +240,7 @@ export const translations = {
   footer: {
     questions: { en: 'Questions? Get in touch at', pl: 'Pytania? Napisz do nas na' },
     madeWith: { en: 'Made with love for our special day', pl: 'Stworzone z miłością na nasz wyjątkowy dzień' },
+    logout: { en: 'Log out', pl: 'Wyloguj' },
   },
 } as const;
 

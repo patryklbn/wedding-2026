@@ -10,6 +10,63 @@ interface EventItem {
   icon: ReactNode;
 }
 
+// Google Calendar URL builder
+function googleCalUrl(params: { title: string; start: string; end: string; location: string; details: string }) {
+  const base = 'https://calendar.google.com/calendar/render?action=TEMPLATE';
+  const qs = new URLSearchParams({
+    text: params.title,
+    dates: `${params.start}/${params.end}`,
+    location: params.location,
+    details: params.details,
+  });
+  return `${base}&${qs.toString()}`;
+}
+
+const weddingGoogleUrl = googleCalUrl({
+  title: "Patryk & Becca's Wedding",
+  start: '20261128T130000Z',
+  end: '20261129T010000Z',
+  location: 'Broxmouth Courtyard, Broxmouth Park, Dunbar, EH42 1QW',
+  details: 'Ceremony, cocktails, dinner, speeches, ceilidh and DJ.',
+});
+
+const poprawinyGoogleUrl = googleCalUrl({
+  title: 'Poprawiny (Day-After Gathering)',
+  start: '20261129T130000Z',
+  end: '20261129T190000Z',
+  location: 'One Canon, Public Hoose, 1 Canonmills, Edinburgh, EH3 5HA',
+  details: 'Scottish/Polish-style poprawiny: a relaxed day-after pub gathering for close friends.',
+});
+
+function CalendarButtons({ icsPath, googleUrl, t }: { icsPath: string; googleUrl: string; t: (key: string) => string }) {
+  return (
+    <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-8">
+      <span className="text-xs uppercase tracking-widest text-stone-400">{t('schedule.addToCalendar')}</span>
+      <a
+        href={icsPath}
+        download
+        className="inline-flex items-center gap-2 px-4 py-2 border border-sage-400 text-sage-700 text-xs uppercase tracking-widest rounded hover:bg-sage-100 transition-colors"
+      >
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+        {t('schedule.downloadIcs')}
+      </a>
+      <a
+        href={googleUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex items-center gap-2 px-4 py-2 border border-sage-400 text-sage-700 text-xs uppercase tracking-widest rounded hover:bg-sage-100 transition-colors"
+      >
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+        </svg>
+        {t('schedule.googleCalendar')}
+      </a>
+    </div>
+  );
+}
+
 export default function Schedule() {
   const { t } = useLanguage();
 
@@ -61,7 +118,8 @@ export default function Schedule() {
 
           <div className="text-center mb-16">
             <p className="font-serif text-xl md:text-2xl text-stone-700 mb-2">{t('schedule.date')}</p>
-            <p className="text-stone-500 text-sm uppercase tracking-wide">{t('schedule.locationLine')}</p>
+            <p className="text-stone-500 text-sm uppercase tracking-wide mb-6">{t('schedule.locationLine')}</p>
+            <p className="text-stone-400 text-sm italic max-w-lg mx-auto">{t('schedule.disclaimer')}</p>
           </div>
 
           <div className="relative">
@@ -91,6 +149,8 @@ export default function Schedule() {
               ))}
             </div>
           </div>
+
+          <CalendarButtons icsPath="/wedding.ics" googleUrl={weddingGoogleUrl} t={t} />
         </div>
       </section>
 
@@ -121,11 +181,12 @@ export default function Schedule() {
                 </div>
               </div>
             </div>
-            <div className="mt-8">
+            <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
               <a href="https://maps.google.com/?q=One+Canon+1+Canonmills+Edinburgh+EH3+5HA" target="_blank" rel="noopener noreferrer" className="btn-secondary text-sm">
                 {t('schedule.dayAfter.viewMap')}
               </a>
             </div>
+            <CalendarButtons icsPath="/poprawiny.ics" googleUrl={poprawinyGoogleUrl} t={t} />
           </div>
         </div>
       </section>

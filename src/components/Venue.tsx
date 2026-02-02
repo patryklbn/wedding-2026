@@ -41,7 +41,7 @@ export default function Venue() {
             </div>
             <h3 className="font-serif text-xl text-stone-700 mb-2">{t('venue.location')}</h3>
             <p className="text-stone-600 text-sm leading-relaxed">
-              Broxmouth Courtyard<br />Broxmouth Park<br />Dunbar, East Lothian<br />EH42 1QX, Scotland
+              Broxmouth Courtyard<br />Broxmouth Park<br />Dunbar, East Lothian<br />EH42 1QW, Scotland
             </p>
           </div>
 

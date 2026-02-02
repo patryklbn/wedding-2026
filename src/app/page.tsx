@@ -1,3 +1,6 @@
+'use client';
+
+import PasswordGate from '@/components/PasswordGate';
 import Navigation from '@/components/Navigation';
 import Hero from '@/components/Hero';
 import GuestNote from '@/components/GuestNote';
@@ -11,17 +14,19 @@ import Footer from '@/components/Footer';
 
 export default function Home() {
   return (
-    <main className="min-h-screen">
-      <Navigation />
-      <Hero />
-      <GuestNote />
-      <Venue />
-      <Schedule />
-      <RSVPForm />
-      <HoneymoonFund />
-      <Travel />
-      <Gallery />
-      <Footer />
-    </main>
+    <PasswordGate>
+      <main className="min-h-screen">
+        <Navigation />
+        <Hero />
+        <GuestNote />
+        <Venue />
+        <Schedule />
+        <RSVPForm />
+        <HoneymoonFund />
+        <Travel />
+        <Gallery />
+        <Footer />
+      </main>
+    </PasswordGate>
   );
 }

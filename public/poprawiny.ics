@@ -1,0 +1,14 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Patryk & Becca Wedding//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+DTSTART:20261129T130000Z
+DTEND:20261129T190000Z
+SUMMARY:Poprawiny (Day-After Gathering)
+LOCATION:One Canon\, Public Hoose\, 1 Canonmills\, Edinburgh\, EH3 5HA
+DESCRIPTION:Scottish/Polish-style poprawiny: a relaxed day-after pub gathering for close friends.
+STATUS:CONFIRMED
+END:VEVENT
+END:VCALENDAR

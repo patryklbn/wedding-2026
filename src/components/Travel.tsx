@@ -6,9 +6,9 @@ export default function Travel() {
   const { t } = useLanguage();
 
   const accommodations = [
-    { name: 'The Rocks', description: t('travel.hotels.rocks'), distance: '5 min drive' },
-    { name: 'Hillside Hotel', description: t('travel.hotels.hillside'), distance: '10 min drive' },
-    { name: 'Dunmuir Hotel', description: t('travel.hotels.dunmuir'), distance: '8 min drive' },
+    { name: 'Bayswell Park Hotel', description: t('travel.hotels.bayswell'), distance: '5 min drive', link: 'https://www.google.com/search?q=Bayswell+Park+Hotel+Dunbar' },
+    { name: 'Hillside Hotel', description: t('travel.hotels.hillside'), distance: '10 min drive', link: 'https://www.google.com/search?q=Hillside+Hotel+Dunbar' },
+    { name: 'Dunmuir Hotel', description: t('travel.hotels.dunmuir'), distance: '8 min drive', link: 'https://www.google.com/search?q=Dunmuir+Hotel+Dunbar' },
   ];
 
   return (
@@ -62,6 +62,21 @@ export default function Travel() {
                   </div>
                 </div>
               </div>
+
+              {/* Coach transport */}
+              <div className="card">
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 w-12 h-12 bg-sage-100 rounded-full flex items-center justify-center">
+                    <svg className="w-6 h-6 text-sage-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 17h8M8 17v2a1 1 0 01-1 1H6a1 1 0 01-1-1v-2m3 0H5a2 2 0 01-2-2V7a4 4 0 014-4h10a4 4 0 014 4v8a2 2 0 01-2 2h-3m0 0v2a1 1 0 001 1h1a1 1 0 001-1v-2" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 className="font-serif text-lg text-stone-700 mb-2">{t('travel.byCoach')}</h4>
+                    <p className="text-stone-600 text-sm leading-relaxed">{t('travel.byCoachDesc')}</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -69,7 +84,7 @@ export default function Travel() {
             <h3 className="font-serif text-2xl text-sage-700 mb-6 text-center lg:text-left">{t('travel.whereToStay')}</h3>
             <div className="space-y-4">
               {accommodations.map((hotel) => (
-                <div key={hotel.name} className="card group hover:shadow-xl transition-shadow duration-300">
+                <a key={hotel.name} href={hotel.link} target="_blank" rel="noopener noreferrer" className="card group hover:shadow-xl transition-shadow duration-300 block">
                   <div className="flex items-center justify-between">
                     <div>
                       <h4 className="font-serif text-lg text-stone-700 mb-1">{hotel.name}</h4>
@@ -82,7 +97,7 @@ export default function Travel() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
                   </div>
-                </div>
+                </a>
               ))}
             </div>
 
