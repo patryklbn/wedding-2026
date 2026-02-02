@@ -2,20 +2,22 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-
-const navItems = [
-  { name: 'Welcome', href: '#guests' },
-  { name: 'Venue', href: '#venue' },
-  { name: 'Schedule', href: '#schedule' },
-  { name: 'RSVP', href: '#rsvp' },
-  { name: 'Honeymoon', href: '#honeymoon' },
-  { name: 'Travel', href: '#travel' },
-  { name: 'Gallery', href: '#gallery' },
-];
+import { useLanguage } from '@/lib/LanguageContext';
 
 export default function Navigation() {
+  const { lang, setLang, t } = useLanguage();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const navItems = [
+    { name: t('nav.welcome'), href: '#guests' },
+    { name: t('nav.venue'), href: '#venue' },
+    { name: t('nav.schedule'), href: '#schedule' },
+    { name: t('nav.rsvp'), href: '#rsvp' },
+    { name: t('nav.honeymoon'), href: '#honeymoon' },
+    { name: t('nav.travel'), href: '#travel' },
+    { name: t('nav.gallery'), href: '#gallery' },
+  ];
 
   useEffect(() => {
     const handleScroll = () => {
@@ -45,10 +47,10 @@ export default function Navigation() {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-6 lg:space-x-8">
+          <div className="hidden md:flex items-center space-x-5 lg:space-x-7">
             {navItems.map((item) => (
               <Link
-                key={item.name}
+                key={item.href}
                 href={item.href}
                 className={`text-xs lg:text-sm uppercase tracking-widest font-light transition-colors duration-300 hover:text-sage-500 ${
                   isScrolled ? 'text-stone-600' : 'text-white/90'
@@ -57,32 +59,59 @@ export default function Navigation() {
                 {item.name}
               </Link>
             ))}
+
+            {/* Language Toggle */}
+            <button
+              onClick={() => setLang(lang === 'en' ? 'pl' : 'en')}
+              className={`text-xs font-medium uppercase tracking-widest px-3 py-1.5 rounded-full border transition-all duration-300 ${
+                isScrolled
+                  ? 'border-sage-400 text-sage-700 hover:bg-sage-100'
+                  : 'border-white/40 text-white hover:bg-white/10'
+              }`}
+              aria-label={`Switch to ${lang === 'en' ? 'Polish' : 'English'}`}
+            >
+              {lang === 'en' ? 'PL' : 'EN'}
+            </button>
           </div>
 
-          {/* Mobile Menu Button */}
-          <button
-            className="md:hidden p-2"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            aria-label="Toggle menu"
-          >
-            <div className="w-6 h-5 relative flex flex-col justify-between">
-              <span
-                className={`w-full h-0.5 transition-all duration-300 ${
-                  isScrolled ? 'bg-stone-600' : 'bg-white'
-                } ${isMobileMenuOpen ? 'rotate-45 translate-y-2' : ''}`}
-              />
-              <span
-                className={`w-full h-0.5 transition-all duration-300 ${
-                  isScrolled ? 'bg-stone-600' : 'bg-white'
-                } ${isMobileMenuOpen ? 'opacity-0' : ''}`}
-              />
-              <span
-                className={`w-full h-0.5 transition-all duration-300 ${
-                  isScrolled ? 'bg-stone-600' : 'bg-white'
-                } ${isMobileMenuOpen ? '-rotate-45 -translate-y-2' : ''}`}
-              />
-            </div>
-          </button>
+          {/* Mobile: Language + Menu */}
+          <div className="flex md:hidden items-center gap-2">
+            <button
+              onClick={() => setLang(lang === 'en' ? 'pl' : 'en')}
+              className={`text-xs font-medium uppercase tracking-widest px-2.5 py-1 rounded-full border transition-all duration-300 ${
+                isScrolled
+                  ? 'border-sage-400 text-sage-700'
+                  : 'border-white/40 text-white'
+              }`}
+              aria-label={`Switch to ${lang === 'en' ? 'Polish' : 'English'}`}
+            >
+              {lang === 'en' ? 'PL' : 'EN'}
+            </button>
+
+            <button
+              className="p-2"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label="Toggle menu"
+            >
+              <div className="w-6 h-5 relative flex flex-col justify-between">
+                <span
+                  className={`w-full h-0.5 transition-all duration-300 ${
+                    isScrolled ? 'bg-stone-600' : 'bg-white'
+                  } ${isMobileMenuOpen ? 'rotate-45 translate-y-2' : ''}`}
+                />
+                <span
+                  className={`w-full h-0.5 transition-all duration-300 ${
+                    isScrolled ? 'bg-stone-600' : 'bg-white'
+                  } ${isMobileMenuOpen ? 'opacity-0' : ''}`}
+                />
+                <span
+                  className={`w-full h-0.5 transition-all duration-300 ${
+                    isScrolled ? 'bg-stone-600' : 'bg-white'
+                  } ${isMobileMenuOpen ? '-rotate-45 -translate-y-2' : ''}`}
+                />
+              </div>
+            </button>
+          </div>
         </div>
 
         {/* Mobile Menu */}
@@ -94,7 +123,7 @@ export default function Navigation() {
           <div className="bg-cream-50/95 backdrop-blur-md rounded-lg p-4 space-y-3">
             {navItems.map((item) => (
               <Link
-                key={item.name}
+                key={item.href}
                 href={item.href}
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="block text-sm uppercase tracking-widest font-light text-stone-600 hover:text-sage-500 transition-colors py-2"

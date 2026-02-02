@@ -1,40 +1,26 @@
+'use client';
+
+import { useLanguage } from '@/lib/LanguageContext';
+
 export default function Travel() {
+  const { t } = useLanguage();
+
   const accommodations = [
-    {
-      name: 'The Rocks',
-      description: 'Charming boutique hotel in the heart of Dunbar',
-      distance: '5 min drive',
-      link: '#',
-    },
-    {
-      name: 'Hillside Hotel',
-      description: 'Comfortable accommodation with sea views',
-      distance: '10 min drive',
-      link: '#',
-    },
-    {
-      name: 'Dunmuir Hotel',
-      description: 'Modern hotel with excellent amenities',
-      distance: '8 min drive',
-      link: '#',
-    },
+    { name: 'The Rocks', description: t('travel.hotels.rocks'), distance: '5 min drive' },
+    { name: 'Hillside Hotel', description: t('travel.hotels.hillside'), distance: '10 min drive' },
+    { name: 'Dunmuir Hotel', description: t('travel.hotels.dunmuir'), distance: '8 min drive' },
   ];
 
   return (
     <section id="travel" className="py-20 md:py-32 bg-cream-50">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="section-heading">Travel & Stay</h2>
-        <p className="section-subheading">Getting there & where to stay</p>
+        <h2 className="section-heading">{t('travel.heading')}</h2>
+        <p className="section-subheading">{t('travel.subtitle')}</p>
 
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16">
-          {/* Getting There */}
           <div>
-            <h3 className="font-serif text-2xl text-sage-700 mb-6 text-center lg:text-left">
-              Getting to Broxmouth
-            </h3>
-
+            <h3 className="font-serif text-2xl text-sage-700 mb-6 text-center lg:text-left">{t('travel.gettingThere')}</h3>
             <div className="space-y-6">
-              {/* By Car */}
               <div className="card">
                 <div className="flex items-start gap-4">
                   <div className="flex-shrink-0 w-12 h-12 bg-sage-100 rounded-full flex items-center justify-center">
@@ -43,17 +29,12 @@ export default function Travel() {
                     </svg>
                   </div>
                   <div>
-                    <h4 className="font-serif text-lg text-stone-700 mb-2">By Car</h4>
-                    <p className="text-stone-600 text-sm leading-relaxed">
-                      Broxmouth Park is located just off the A1, approximately 30 miles east of Edinburgh.
-                      The postcode EH42 1QX will take you directly to the estate entrance.
-                      Free parking is available on site.
-                    </p>
+                    <h4 className="font-serif text-lg text-stone-700 mb-2">{t('travel.byCar')}</h4>
+                    <p className="text-stone-600 text-sm leading-relaxed">{t('travel.byCarDesc')}</p>
                   </div>
                 </div>
               </div>
 
-              {/* By Train */}
               <div className="card">
                 <div className="flex items-start gap-4">
                   <div className="flex-shrink-0 w-12 h-12 bg-sage-100 rounded-full flex items-center justify-center">
@@ -62,16 +43,12 @@ export default function Travel() {
                     </svg>
                   </div>
                   <div>
-                    <h4 className="font-serif text-lg text-stone-700 mb-2">By Train</h4>
-                    <p className="text-stone-600 text-sm leading-relaxed">
-                      Dunbar station is on the East Coast Main Line, with regular services from Edinburgh
-                      (25 minutes) and London King&apos;s Cross. Taxis are available from the station.
-                    </p>
+                    <h4 className="font-serif text-lg text-stone-700 mb-2">{t('travel.byTrain')}</h4>
+                    <p className="text-stone-600 text-sm leading-relaxed">{t('travel.byTrainDesc')}</p>
                   </div>
                 </div>
               </div>
 
-              {/* By Air */}
               <div className="card">
                 <div className="flex items-start gap-4">
                   <div className="flex-shrink-0 w-12 h-12 bg-sage-100 rounded-full flex items-center justify-center">
@@ -80,24 +57,16 @@ export default function Travel() {
                     </svg>
                   </div>
                   <div>
-                    <h4 className="font-serif text-lg text-stone-700 mb-2">By Air</h4>
-                    <p className="text-stone-600 text-sm leading-relaxed">
-                      Edinburgh Airport is approximately 40 miles from the venue.
-                      Car hire is available at the airport, or you can take the tram to Edinburgh city
-                      centre and connect by train.
-                    </p>
+                    <h4 className="font-serif text-lg text-stone-700 mb-2">{t('travel.byAir')}</h4>
+                    <p className="text-stone-600 text-sm leading-relaxed">{t('travel.byAirDesc')}</p>
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Accommodation */}
           <div>
-            <h3 className="font-serif text-2xl text-sage-700 mb-6 text-center lg:text-left">
-              Where to Stay
-            </h3>
-
+            <h3 className="font-serif text-2xl text-sage-700 mb-6 text-center lg:text-left">{t('travel.whereToStay')}</h3>
             <div className="space-y-4">
               {accommodations.map((hotel) => (
                 <div key={hotel.name} className="card group hover:shadow-xl transition-shadow duration-300">
@@ -106,15 +75,10 @@ export default function Travel() {
                       <h4 className="font-serif text-lg text-stone-700 mb-1">{hotel.name}</h4>
                       <p className="text-stone-500 text-sm">{hotel.description}</p>
                       <span className="inline-block mt-2 text-xs text-sage-600 bg-sage-100 px-2 py-1 rounded">
-                        {hotel.distance} from venue
+                        {hotel.distance} {t('travel.fromVenue')}
                       </span>
                     </div>
-                    <svg
-                      className="w-5 h-5 text-sage-400 group-hover:text-sage-600 group-hover:translate-x-1 transition-all"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
+                    <svg className="w-5 h-5 text-sage-400 group-hover:text-sage-600 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
                   </div>
@@ -122,13 +86,9 @@ export default function Travel() {
               ))}
             </div>
 
-            {/* Additional Info */}
             <div className="mt-8 p-6 bg-heather-100 rounded-lg border border-heather-200">
-              <h4 className="font-serif text-lg text-heather-700 mb-2">Taxi Services</h4>
-              <p className="text-heather-600 text-sm">
-                We recommend booking taxis in advance, especially for the evening.
-                Local taxi companies include Dunbar Taxis and East Lothian Cabs.
-              </p>
+              <h4 className="font-serif text-lg text-heather-700 mb-2">{t('travel.taxiServices')}</h4>
+              <p className="text-heather-600 text-sm">{t('travel.taxiDesc')}</p>
             </div>
           </div>
         </div>

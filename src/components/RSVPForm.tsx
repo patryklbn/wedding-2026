@@ -3,141 +3,92 @@
 import { useState, FormEvent } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-
-const DIETARY_OPTIONS = [
-  { id: 'none', label: 'None' },
-  { id: 'vegetarian', label: 'Vegetarian' },
-  { id: 'vegan', label: 'Vegan' },
-  { id: 'gluten-free', label: 'Gluten-free' },
-  { id: 'dairy-free', label: 'Dairy-free' },
-  { id: 'nut-allergy', label: 'Nut allergy' },
-  { id: 'other', label: 'Other' },
-] as const;
+import { useLanguage } from '@/lib/LanguageContext';
 
 interface FormData {
   name: string;
   email: string;
-  attending: 'yes' | 'no' | '';
-  guestCount: '1' | '2' | '';
-  dietaryRequirements: string[];
-  otherDietary: string;
+  numberOfGuests: '' | '1' | '2' | '3' | '4';
+  additionalNames: string;
+  invitationType: '' | 'day' | 'evening';
+  attending: '' | 'yes' | 'no';
+  dietary: string;
+  toastDrink: '' | 'alcoholic' | 'non-alcoholic';
   message: string;
 }
 
+type ErrorKey = keyof FormData;
+
 export default function RSVPForm() {
+  const { t } = useLanguage();
+
   const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
+    numberOfGuests: '',
+    additionalNames: '',
+    invitationType: '',
     attending: '',
-    guestCount: '',
-    dietaryRequirements: [],
-    otherDietary: '',
+    dietary: '',
+    toastDrink: '',
     message: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
-  const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
+  const [errors, setErrors] = useState<Partial<Record<ErrorKey, string>>>({});
 
-  const validateEmail = (email: string): boolean => {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(email);
+  const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  const validate = (): boolean => {
+    const e: Partial<Record<ErrorKey, string>> = {};
+
+    if (!formData.name.trim()) e.name = t('rsvp.nameRequired');
+    if (!formData.email.trim()) e.email = t('rsvp.emailRequired');
+    else if (!validateEmail(formData.email)) e.email = t('rsvp.emailInvalid');
+    if (!formData.numberOfGuests) e.numberOfGuests = t('rsvp.guestsRequired');
+    if (Number(formData.numberOfGuests) > 1 && !formData.additionalNames.trim()) e.additionalNames = t('rsvp.additionalNamesRequired');
+    if (!formData.invitationType) e.invitationType = t('rsvp.invitationRequired');
+    if (!formData.attending) e.attending = t('rsvp.attendingRequired');
+    if (formData.attending === 'yes' && formData.invitationType === 'day') {
+      if (!formData.dietary.trim()) e.dietary = t('rsvp.dietaryRequired');
+      if (!formData.toastDrink) e.toastDrink = t('rsvp.toastRequired');
+    }
+
+    setErrors(e);
+    return Object.keys(e).length === 0;
   };
 
-  const validateForm = (): boolean => {
-    const newErrors: Partial<Record<keyof FormData, string>> = {};
-
-    if (!formData.name.trim()) {
-      newErrors.name = 'Full name is required';
-    }
-
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
-    } else if (!validateEmail(formData.email)) {
-      newErrors.email = 'Please enter a valid email address';
-    }
-
-    if (!formData.attending) {
-      newErrors.attending = 'Please let us know if you can attend';
-    }
-
-    if (formData.attending === 'yes' && !formData.guestCount) {
-      newErrors.guestCount = 'Please select number of guests';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-    if (errors[name as keyof FormData]) {
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (errors[name as ErrorKey]) {
       setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
   };
 
-  const handleDietaryChange = (optionId: string) => {
-    setFormData((prev) => {
-      const current = prev.dietaryRequirements;
-
-      if (optionId === 'none') {
-        return { ...prev, dietaryRequirements: current.includes('none') ? [] : ['none'] };
-      }
-
-      const withoutNone = current.filter((id) => id !== 'none');
-
-      if (current.includes(optionId)) {
-        return { ...prev, dietaryRequirements: withoutNone.filter((id) => id !== optionId) };
-      } else {
-        return { ...prev, dietaryRequirements: [...withoutNone, optionId] };
-      }
-    });
-  };
-
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
+    if (!validate()) return;
 
     setIsSubmitting(true);
     setSubmitStatus('idle');
 
     try {
-      const firestore = db();
-      const submitData = {
+      await addDoc(collection(db, 'rsvps'), {
         name: formData.name,
         email: formData.email,
+        numberOfGuests: formData.numberOfGuests,
+        additionalNames: Number(formData.numberOfGuests) > 1 ? formData.additionalNames : null,
+        invitationType: formData.invitationType,
         attending: formData.attending,
-        guestCount: formData.attending === 'yes' ? formData.guestCount : null,
-        dietaryRequirements: formData.attending === 'yes' ? formData.dietaryRequirements : [],
-        otherDietary: formData.attending === 'yes' && formData.dietaryRequirements.includes('other')
-          ? formData.otherDietary
-          : null,
+        dietary: formData.attending === 'yes' && formData.invitationType === 'day' ? formData.dietary : null,
+        toastDrink: formData.attending === 'yes' && formData.invitationType === 'day' ? formData.toastDrink : null,
         message: formData.message,
         submittedAt: serverTimestamp(),
-      };
-
-      if (firestore) {
-        await addDoc(collection(firestore, 'rsvps'), submitData);
-      }
+      });
 
       setSubmitStatus('success');
-      setFormData({
-        name: '',
-        email: '',
-        attending: '',
-        guestCount: '',
-        dietaryRequirements: [],
-        otherDietary: '',
-        message: '',
-      });
+      setFormData({ name: '', email: '', numberOfGuests: '', additionalNames: '', invitationType: '', attending: '', dietary: '', toastDrink: '', message: '' });
     } catch (error) {
       console.error('Error submitting RSVP:', error);
       setSubmitStatus('error');
@@ -146,7 +97,15 @@ export default function RSVPForm() {
     }
   };
 
-  const showAttendingFields = formData.attending === 'yes';
+  const showDayFields = formData.attending === 'yes' && formData.invitationType === 'day';
+  const showAdditionalNames = Number(formData.numberOfGuests) > 1;
+
+  const fieldError = (key: ErrorKey) =>
+    errors[key] ? (
+      <p id={`${key}-error`} className="mt-1 text-sm text-rust-600" role="alert">{errors[key]}</p>
+    ) : null;
+
+  const errorClass = (key: ErrorKey) => errors[key] ? 'border-rust-400 focus:ring-rust-400' : '';
 
   return (
     <section id="rsvp" className="py-20 md:py-32 bg-sage-600 relative overflow-hidden">
@@ -156,8 +115,8 @@ export default function RSVPForm() {
       </div>
 
       <div className="relative max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="section-heading !text-white">RSVP</h2>
-        <p className="section-subheading !text-sage-200">Kindly respond by 1st October 2026</p>
+        <h2 className="section-heading !text-white">{t('rsvp.heading')}</h2>
+        <p className="section-subheading !text-sage-200">{t('rsvp.subtitle')}</p>
 
         {submitStatus === 'success' ? (
           <div className="card text-center py-12">
@@ -166,207 +125,124 @@ export default function RSVPForm() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h3 className="font-serif text-2xl text-stone-700 mb-2">Thank You!</h3>
-            <p className="text-stone-600">
-              Your RSVP has been received.
-            </p>
+            <h3 className="font-serif text-2xl text-stone-700 mb-2">{t('rsvp.thankYou')}</h3>
+            <p className="text-stone-600">{t('rsvp.received')}</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="card space-y-6" noValidate>
-            {/* Full Name */}
+            {/* Full Name(s) */}
             <div>
-              <label htmlFor="name" className="input-label">
-                Full Name <span className="text-rust-500">*</span>
-              </label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                required
-                aria-required="true"
-                aria-invalid={!!errors.name}
-                aria-describedby={errors.name ? 'name-error' : undefined}
-                value={formData.name}
-                onChange={handleChange}
-                className={`input-field ${errors.name ? 'border-rust-400 focus:ring-rust-400' : ''}`}
-                placeholder="Your full name"
-              />
-              {errors.name && (
-                <p id="name-error" className="mt-1 text-sm text-rust-600" role="alert">
-                  {errors.name}
-                </p>
-              )}
+              <label htmlFor="name" className="input-label">{t('rsvp.fullName')} <span className="text-rust-500">*</span></label>
+              <input type="text" id="name" name="name" required aria-required="true" aria-invalid={!!errors.name} aria-describedby={errors.name ? 'name-error' : undefined} value={formData.name} onChange={handleChange} className={`input-field ${errorClass('name')}`} placeholder={t('rsvp.fullNamePlaceholder')} />
+              {fieldError('name')}
             </div>
 
             {/* Email */}
             <div>
-              <label htmlFor="email" className="input-label">
-                Email Address <span className="text-rust-500">*</span>
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                required
-                aria-required="true"
-                aria-invalid={!!errors.email}
-                aria-describedby={errors.email ? 'email-error' : undefined}
-                value={formData.email}
-                onChange={handleChange}
-                className={`input-field ${errors.email ? 'border-rust-400 focus:ring-rust-400' : ''}`}
-                placeholder="your.email@example.com"
-              />
-              {errors.email && (
-                <p id="email-error" className="mt-1 text-sm text-rust-600" role="alert">
-                  {errors.email}
-                </p>
-              )}
+              <label htmlFor="email" className="input-label">{t('rsvp.email')} <span className="text-rust-500">*</span></label>
+              <input type="email" id="email" name="email" required aria-required="true" aria-invalid={!!errors.email} aria-describedby={errors.email ? 'email-error' : undefined} value={formData.email} onChange={handleChange} className={`input-field ${errorClass('email')}`} placeholder={t('rsvp.emailPlaceholder')} />
+              {fieldError('email')}
             </div>
+
+            {/* Number of Guests */}
+            <div>
+              <label htmlFor="numberOfGuests" className="input-label">{t('rsvp.numberOfGuests')} <span className="text-rust-500">*</span></label>
+              <select id="numberOfGuests" name="numberOfGuests" required aria-required="true" aria-invalid={!!errors.numberOfGuests} aria-describedby={errors.numberOfGuests ? 'numberOfGuests-error' : undefined} value={formData.numberOfGuests} onChange={handleChange} className={`input-field ${errorClass('numberOfGuests')}`}>
+                <option value="">{t('rsvp.guestsSelect')}</option>
+                <option value="1">1 {t('rsvp.guest')}</option>
+                <option value="2">2 {t('rsvp.guests')}</option>
+                <option value="3">3 {t('rsvp.guests')}</option>
+                <option value="4">4 {t('rsvp.guests')}</option>
+              </select>
+              {fieldError('numberOfGuests')}
+            </div>
+
+            {/* Additional Guest Names */}
+            <div className={`grid transition-all duration-300 ease-in-out ${showAdditionalNames ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
+              <div className="overflow-hidden">
+                <div className="pt-0">
+                  <label htmlFor="additionalNames" className="input-label">{t('rsvp.additionalNames')} <span className="text-rust-500">*</span></label>
+                  <input type="text" id="additionalNames" name="additionalNames" aria-required={showAdditionalNames} aria-invalid={!!errors.additionalNames} aria-describedby={errors.additionalNames ? 'additionalNames-error' : undefined} value={formData.additionalNames} onChange={handleChange} className={`input-field ${errorClass('additionalNames')}`} placeholder={t('rsvp.additionalNamesPlaceholder')} />
+                  {fieldError('additionalNames')}
+                </div>
+              </div>
+            </div>
+
+            {/* Invitation Type */}
+            <fieldset>
+              <legend className="input-label">{t('rsvp.invitationType')} <span className="text-rust-500">*</span></legend>
+              <div className="mt-2 space-y-2">
+                <label className="flex items-start gap-3 cursor-pointer p-3 rounded-lg hover:bg-stone-50 transition-colors">
+                  <input type="radio" name="invitationType" value="day" checked={formData.invitationType === 'day'} onChange={handleChange} className="w-5 h-5 mt-0.5 text-sage-600 border-stone-300 focus:ring-sage-500" aria-describedby={errors.invitationType ? 'invitationType-error' : undefined} />
+                  <span className="text-stone-700 text-sm">{t('rsvp.dayGuest')}</span>
+                </label>
+                <label className="flex items-start gap-3 cursor-pointer p-3 rounded-lg hover:bg-stone-50 transition-colors">
+                  <input type="radio" name="invitationType" value="evening" checked={formData.invitationType === 'evening'} onChange={handleChange} className="w-5 h-5 mt-0.5 text-sage-600 border-stone-300 focus:ring-sage-500" />
+                  <span className="text-stone-700 text-sm">{t('rsvp.eveningGuest')}</span>
+                </label>
+              </div>
+              {fieldError('invitationType')}
+            </fieldset>
 
             {/* Attending */}
             <fieldset>
-              <legend className="input-label">
-                Will you be attending? <span className="text-rust-500">*</span>
-              </legend>
+              <legend className="input-label">{t('rsvp.attending')} <span className="text-rust-500">*</span></legend>
               <div className="mt-2 space-y-2">
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="attending"
-                    value="yes"
-                    checked={formData.attending === 'yes'}
-                    onChange={handleChange}
-                    className="w-5 h-5 text-sage-600 border-stone-300 focus:ring-sage-500"
-                    aria-describedby={errors.attending ? 'attending-error' : undefined}
-                  />
-                  <span className="text-stone-700">Yes, I&apos;ll be there</span>
+                <label className="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-stone-50 transition-colors">
+                  <input type="radio" name="attending" value="yes" checked={formData.attending === 'yes'} onChange={handleChange} className="w-5 h-5 text-sage-600 border-stone-300 focus:ring-sage-500" aria-describedby={errors.attending ? 'attending-error' : undefined} />
+                  <span className="text-stone-700">{t('rsvp.attendingYes')}</span>
                 </label>
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="attending"
-                    value="no"
-                    checked={formData.attending === 'no'}
-                    onChange={handleChange}
-                    className="w-5 h-5 text-sage-600 border-stone-300 focus:ring-sage-500"
-                  />
-                  <span className="text-stone-700">Sorry, I can&apos;t make it</span>
+                <label className="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-stone-50 transition-colors">
+                  <input type="radio" name="attending" value="no" checked={formData.attending === 'no'} onChange={handleChange} className="w-5 h-5 text-sage-600 border-stone-300 focus:ring-sage-500" />
+                  <span className="text-stone-700">{t('rsvp.attendingNo')}</span>
                 </label>
               </div>
-              {errors.attending && (
-                <p id="attending-error" className="mt-1 text-sm text-rust-600" role="alert">
-                  {errors.attending}
-                </p>
-              )}
+              {fieldError('attending')}
             </fieldset>
 
-            {/* Fields shown only when attending */}
-            {showAttendingFields && (
-              <>
-                {/* Number of Guests */}
+            {/* Day Guest Conditional Fields */}
+            <div className={`grid transition-all duration-300 ease-in-out ${showDayFields ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
+              <div className="overflow-hidden space-y-6">
+                {/* Dietary */}
                 <div>
-                  <label htmlFor="guestCount" className="input-label">
-                    Number of Guests Attending <span className="text-rust-500">*</span>
-                  </label>
-                  <select
-                    id="guestCount"
-                    name="guestCount"
-                    required
-                    aria-required="true"
-                    aria-invalid={!!errors.guestCount}
-                    aria-describedby={errors.guestCount ? 'guestCount-error' : undefined}
-                    value={formData.guestCount}
-                    onChange={handleChange}
-                    className={`input-field ${errors.guestCount ? 'border-rust-400 focus:ring-rust-400' : ''}`}
-                  >
-                    <option value="">Please select</option>
-                    <option value="1">1 guest</option>
-                    <option value="2">2 guests</option>
-                  </select>
-                  {errors.guestCount && (
-                    <p id="guestCount-error" className="mt-1 text-sm text-rust-600" role="alert">
-                      {errors.guestCount}
-                    </p>
-                  )}
+                  <label htmlFor="dietary" className="input-label">{t('rsvp.dietary')} <span className="text-rust-500">*</span></label>
+                  <textarea id="dietary" name="dietary" aria-required={showDayFields} aria-invalid={!!errors.dietary} aria-describedby={errors.dietary ? 'dietary-error' : undefined} value={formData.dietary} onChange={handleChange} rows={3} className={`input-field resize-none ${errorClass('dietary')}`} placeholder={t('rsvp.dietaryPlaceholder')} />
+                  {fieldError('dietary')}
                 </div>
 
-                {/* Dietary Requirements */}
+                {/* Toast Drink */}
                 <fieldset>
-                  <legend className="input-label">Dietary Requirements</legend>
-                  <p className="text-sm text-stone-500 mb-3">Select all that apply</p>
-                  <div className="grid grid-cols-2 gap-2">
-                    {DIETARY_OPTIONS.map((option) => (
-                      <label
-                        key={option.id}
-                        className="flex items-center gap-2 cursor-pointer p-2 rounded-lg hover:bg-stone-50 transition-colors"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={formData.dietaryRequirements.includes(option.id)}
-                          onChange={() => handleDietaryChange(option.id)}
-                          className="w-4 h-4 text-sage-600 border-stone-300 rounded focus:ring-sage-500"
-                          aria-label={option.label}
-                        />
-                        <span className="text-stone-700 text-sm">{option.label}</span>
-                      </label>
-                    ))}
+                  <legend className="input-label">{t('rsvp.toastDrink')} <span className="text-rust-500">*</span></legend>
+                  <div className="mt-2 space-y-2">
+                    <label className="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-stone-50 transition-colors">
+                      <input type="radio" name="toastDrink" value="alcoholic" checked={formData.toastDrink === 'alcoholic'} onChange={handleChange} className="w-5 h-5 text-sage-600 border-stone-300 focus:ring-sage-500" aria-describedby={errors.toastDrink ? 'toastDrink-error' : undefined} />
+                      <span className="text-stone-700">{t('rsvp.alcoholic')}</span>
+                    </label>
+                    <label className="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-stone-50 transition-colors">
+                      <input type="radio" name="toastDrink" value="non-alcoholic" checked={formData.toastDrink === 'non-alcoholic'} onChange={handleChange} className="w-5 h-5 text-sage-600 border-stone-300 focus:ring-sage-500" />
+                      <span className="text-stone-700">{t('rsvp.nonAlcoholic')}</span>
+                    </label>
                   </div>
-
-                  {formData.dietaryRequirements.includes('other') && (
-                    <div className="mt-3">
-                      <label htmlFor="otherDietary" className="sr-only">
-                        Please specify other dietary requirements
-                      </label>
-                      <input
-                        type="text"
-                        id="otherDietary"
-                        name="otherDietary"
-                        value={formData.otherDietary}
-                        onChange={handleChange}
-                        className="input-field"
-                        placeholder="Please specify..."
-                      />
-                    </div>
-                  )}
+                  {fieldError('toastDrink')}
                 </fieldset>
-              </>
-            )}
+              </div>
+            </div>
 
             {/* Message */}
             <div>
-              <label htmlFor="message" className="input-label">
-                Message for the Couple
-              </label>
-              <textarea
-                id="message"
-                name="message"
-                value={formData.message}
-                onChange={handleChange}
-                rows={3}
-                className="input-field resize-none"
-                placeholder="Share your well wishes (optional)"
-                aria-describedby="message-hint"
-              />
-              <p id="message-hint" className="mt-1 text-xs text-stone-400">
-                Optional
-              </p>
+              <label htmlFor="message" className="input-label">{t('rsvp.message')}</label>
+              <textarea id="message" name="message" value={formData.message} onChange={handleChange} rows={3} className="input-field resize-none" placeholder={t('rsvp.messagePlaceholder')} aria-describedby="message-hint" />
+              <p id="message-hint" className="mt-1 text-xs text-stone-400">{t('rsvp.optional')}</p>
             </div>
 
-            {/* Error message */}
             {submitStatus === 'error' && (
               <div className="p-4 bg-rust-100 border border-rust-300 rounded-lg text-rust-700 text-sm" role="alert">
-                Something went wrong. Please try again or contact us directly.
+                {t('rsvp.errorSubmit')}
               </div>
             )}
 
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
-              aria-busy={isSubmitting}
-            >
-              {isSubmitting ? 'Sending...' : 'Send RSVP'}
+            <button type="submit" disabled={isSubmitting} className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed" aria-busy={isSubmitting}>
+              {isSubmitting ? t('rsvp.sending') : t('rsvp.submit')}
             </button>
           </form>
         )}
