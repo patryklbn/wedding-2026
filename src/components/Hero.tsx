@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useLanguage } from '@/lib/LanguageContext';
+import { isEveningOnly } from '@/lib/siteVersion';
 
 interface TimeLeft {
   days: number;
@@ -63,7 +64,7 @@ export default function Hero() {
 
       <div className="relative z-10 text-center text-white px-4 max-w-4xl mx-auto">
         <p className="text-sm md:text-base uppercase tracking-[0.3em] mb-6 animate-fade-in opacity-0 [animation-delay:0.3s]">
-          {t('hero.gettingMarried')}
+          {isEveningOnly ? t('hero.eveningSubtitle') : t('hero.gettingMarried')}
         </p>
 
         <h1 className="font-script text-6xl md:text-8xl lg:text-9xl mb-6 animate-fade-in opacity-0 [animation-delay:0.6s]">

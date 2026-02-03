@@ -1,6 +1,7 @@
 'use client';
 
 import { useLanguage } from '@/lib/LanguageContext';
+import { isEveningOnly } from '@/lib/siteVersion';
 import { ReactNode } from 'react';
 
 interface EventItem {
@@ -70,7 +71,7 @@ function CalendarButtons({ icsPath, googleUrl, t }: { icsPath: string; googleUrl
 export default function Schedule() {
   const { t } = useLanguage();
 
-  const weddingDayEvents: EventItem[] = [
+  const allEvents: EventItem[] = [
     {
       time: '13:00',
       title: t('schedule.events.arrival'),
@@ -109,17 +110,24 @@ export default function Schedule() {
     },
   ];
 
+  // Evening-only version shows only the evening reception event
+  const weddingDayEvents = isEveningOnly
+    ? allEvents.filter((e) => e.time === '20:30')
+    : allEvents;
+
   return (
     <>
       <section id="schedule" className="py-20 md:py-32 bg-cream-100">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="section-heading">{t('schedule.heading')}</h2>
-          <p className="section-subheading">{t('schedule.subtitle')}</p>
+          <p className="section-subheading">{isEveningOnly ? t('schedule.subtitleEvening') : t('schedule.subtitle')}</p>
 
           <div className="text-center mb-16">
             <p className="font-serif text-xl md:text-2xl text-stone-700 mb-2">{t('schedule.date')}</p>
             <p className="text-stone-500 text-sm uppercase tracking-wide mb-6">{t('schedule.locationLine')}</p>
-            <p className="text-stone-400 text-sm italic max-w-lg mx-auto">{t('schedule.disclaimer')}</p>
+            {!isEveningOnly && (
+              <p className="text-stone-400 text-sm italic max-w-lg mx-auto">{t('schedule.disclaimer')}</p>
+            )}
           </div>
 
           <div className="relative">

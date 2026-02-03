@@ -4,6 +4,7 @@ import { useState, FormEvent } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { useLanguage } from '@/lib/LanguageContext';
+import { isEveningOnly } from '@/lib/siteVersion';
 
 interface FormData {
   name: string;
@@ -27,7 +28,7 @@ export default function RSVPForm() {
     email: '',
     numberOfGuests: '',
     additionalNames: '',
-    invitationType: '',
+    invitationType: isEveningOnly ? 'evening' : '',
     attending: '',
     dietary: '',
     toastDrink: '',
@@ -47,9 +48,9 @@ export default function RSVPForm() {
     else if (!validateEmail(formData.email)) e.email = t('rsvp.emailInvalid');
     if (!formData.numberOfGuests) e.numberOfGuests = t('rsvp.guestsRequired');
     if (Number(formData.numberOfGuests) > 1 && !formData.additionalNames.trim()) e.additionalNames = t('rsvp.additionalNamesRequired');
-    if (!formData.invitationType) e.invitationType = t('rsvp.invitationRequired');
+    if (!isEveningOnly && !formData.invitationType) e.invitationType = t('rsvp.invitationRequired');
     if (!formData.attending) e.attending = t('rsvp.attendingRequired');
-    if (formData.attending === 'yes' && formData.invitationType === 'day') {
+    if (!isEveningOnly && formData.attending === 'yes' && formData.invitationType === 'day') {
       if (!formData.dietary.trim()) e.dietary = t('rsvp.dietaryRequired');
       if (!formData.toastDrink) e.toastDrink = t('rsvp.toastRequired');
     }
@@ -79,16 +80,16 @@ export default function RSVPForm() {
         email: formData.email,
         numberOfGuests: formData.numberOfGuests,
         additionalNames: Number(formData.numberOfGuests) > 1 ? formData.additionalNames : null,
-        invitationType: formData.invitationType,
+        invitationType: isEveningOnly ? 'evening' : formData.invitationType,
         attending: formData.attending,
-        dietary: formData.attending === 'yes' && formData.invitationType === 'day' ? formData.dietary : null,
-        toastDrink: formData.attending === 'yes' && formData.invitationType === 'day' ? formData.toastDrink : null,
+        dietary: !isEveningOnly && formData.attending === 'yes' && formData.invitationType === 'day' ? formData.dietary : null,
+        toastDrink: !isEveningOnly && formData.attending === 'yes' && formData.invitationType === 'day' ? formData.toastDrink : null,
         message: formData.message,
         submittedAt: serverTimestamp(),
       });
 
       setSubmitStatus('success');
-      setFormData({ name: '', email: '', numberOfGuests: '', additionalNames: '', invitationType: '', attending: '', dietary: '', toastDrink: '', message: '' });
+      setFormData({ name: '', email: '', numberOfGuests: '', additionalNames: '', invitationType: isEveningOnly ? 'evening' : '', attending: '', dietary: '', toastDrink: '', message: '' });
     } catch (error) {
       console.error('Error submitting RSVP:', error);
       setSubmitStatus('error');
@@ -97,7 +98,7 @@ export default function RSVPForm() {
     }
   };
 
-  const showDayFields = formData.attending === 'yes' && formData.invitationType === 'day';
+  const showDayFields = !isEveningOnly && formData.attending === 'yes' && formData.invitationType === 'day';
   const showAdditionalNames = Number(formData.numberOfGuests) > 1;
 
   const fieldError = (key: ErrorKey) =>
@@ -168,21 +169,23 @@ export default function RSVPForm() {
               </div>
             </div>
 
-            {/* Invitation Type */}
-            <fieldset>
-              <legend className="input-label">{t('rsvp.invitationType')} <span className="text-rust-500">*</span></legend>
-              <div className="mt-2 space-y-2">
-                <label className="flex items-start gap-3 cursor-pointer p-3 rounded-lg hover:bg-stone-50 transition-colors">
-                  <input type="radio" name="invitationType" value="day" checked={formData.invitationType === 'day'} onChange={handleChange} className="w-5 h-5 mt-0.5 text-sage-600 border-stone-300 focus:ring-sage-500" aria-describedby={errors.invitationType ? 'invitationType-error' : undefined} />
-                  <span className="text-stone-700 text-sm">{t('rsvp.dayGuest')}</span>
-                </label>
-                <label className="flex items-start gap-3 cursor-pointer p-3 rounded-lg hover:bg-stone-50 transition-colors">
-                  <input type="radio" name="invitationType" value="evening" checked={formData.invitationType === 'evening'} onChange={handleChange} className="w-5 h-5 mt-0.5 text-sage-600 border-stone-300 focus:ring-sage-500" />
-                  <span className="text-stone-700 text-sm">{t('rsvp.eveningGuest')}</span>
-                </label>
-              </div>
-              {fieldError('invitationType')}
-            </fieldset>
+            {/* Invitation Type -- hidden for evening-only version */}
+            {!isEveningOnly && (
+              <fieldset>
+                <legend className="input-label">{t('rsvp.invitationType')} <span className="text-rust-500">*</span></legend>
+                <div className="mt-2 space-y-2">
+                  <label className="flex items-start gap-3 cursor-pointer p-3 rounded-lg hover:bg-stone-50 transition-colors">
+                    <input type="radio" name="invitationType" value="day" checked={formData.invitationType === 'day'} onChange={handleChange} className="w-5 h-5 mt-0.5 text-sage-600 border-stone-300 focus:ring-sage-500" aria-describedby={errors.invitationType ? 'invitationType-error' : undefined} />
+                    <span className="text-stone-700 text-sm">{t('rsvp.dayGuest')}</span>
+                  </label>
+                  <label className="flex items-start gap-3 cursor-pointer p-3 rounded-lg hover:bg-stone-50 transition-colors">
+                    <input type="radio" name="invitationType" value="evening" checked={formData.invitationType === 'evening'} onChange={handleChange} className="w-5 h-5 mt-0.5 text-sage-600 border-stone-300 focus:ring-sage-500" />
+                    <span className="text-stone-700 text-sm">{t('rsvp.eveningGuest')}</span>
+                  </label>
+                </div>
+                {fieldError('invitationType')}
+              </fieldset>
+            )}
 
             {/* Attending */}
             <fieldset>
@@ -200,33 +203,35 @@ export default function RSVPForm() {
               {fieldError('attending')}
             </fieldset>
 
-            {/* Day Guest Conditional Fields */}
-            <div className={`grid transition-all duration-300 ease-in-out ${showDayFields ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
-              <div className="overflow-hidden space-y-6">
-                {/* Dietary */}
-                <div>
-                  <label htmlFor="dietary" className="input-label">{t('rsvp.dietary')} <span className="text-rust-500">*</span></label>
-                  <textarea id="dietary" name="dietary" aria-required={showDayFields} aria-invalid={!!errors.dietary} aria-describedby={errors.dietary ? 'dietary-error' : undefined} value={formData.dietary} onChange={handleChange} rows={3} className={`input-field resize-none ${errorClass('dietary')}`} placeholder={t('rsvp.dietaryPlaceholder')} />
-                  {fieldError('dietary')}
-                </div>
-
-                {/* Toast Drink */}
-                <fieldset>
-                  <legend className="input-label">{t('rsvp.toastDrink')} <span className="text-rust-500">*</span></legend>
-                  <div className="mt-2 space-y-2">
-                    <label className="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-stone-50 transition-colors">
-                      <input type="radio" name="toastDrink" value="alcoholic" checked={formData.toastDrink === 'alcoholic'} onChange={handleChange} className="w-5 h-5 text-sage-600 border-stone-300 focus:ring-sage-500" aria-describedby={errors.toastDrink ? 'toastDrink-error' : undefined} />
-                      <span className="text-stone-700">{t('rsvp.alcoholic')}</span>
-                    </label>
-                    <label className="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-stone-50 transition-colors">
-                      <input type="radio" name="toastDrink" value="non-alcoholic" checked={formData.toastDrink === 'non-alcoholic'} onChange={handleChange} className="w-5 h-5 text-sage-600 border-stone-300 focus:ring-sage-500" />
-                      <span className="text-stone-700">{t('rsvp.nonAlcoholic')}</span>
-                    </label>
+            {/* Day Guest Conditional Fields -- never shown for evening-only version */}
+            {!isEveningOnly && (
+              <div className={`grid transition-all duration-300 ease-in-out ${showDayFields ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
+                <div className="overflow-hidden space-y-6">
+                  {/* Dietary */}
+                  <div>
+                    <label htmlFor="dietary" className="input-label">{t('rsvp.dietary')} <span className="text-rust-500">*</span></label>
+                    <textarea id="dietary" name="dietary" aria-required={showDayFields} aria-invalid={!!errors.dietary} aria-describedby={errors.dietary ? 'dietary-error' : undefined} value={formData.dietary} onChange={handleChange} rows={3} className={`input-field resize-none ${errorClass('dietary')}`} placeholder={t('rsvp.dietaryPlaceholder')} />
+                    {fieldError('dietary')}
                   </div>
-                  {fieldError('toastDrink')}
-                </fieldset>
+
+                  {/* Toast Drink */}
+                  <fieldset>
+                    <legend className="input-label">{t('rsvp.toastDrink')} <span className="text-rust-500">*</span></legend>
+                    <div className="mt-2 space-y-2">
+                      <label className="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-stone-50 transition-colors">
+                        <input type="radio" name="toastDrink" value="alcoholic" checked={formData.toastDrink === 'alcoholic'} onChange={handleChange} className="w-5 h-5 text-sage-600 border-stone-300 focus:ring-sage-500" aria-describedby={errors.toastDrink ? 'toastDrink-error' : undefined} />
+                        <span className="text-stone-700">{t('rsvp.alcoholic')}</span>
+                      </label>
+                      <label className="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-stone-50 transition-colors">
+                        <input type="radio" name="toastDrink" value="non-alcoholic" checked={formData.toastDrink === 'non-alcoholic'} onChange={handleChange} className="w-5 h-5 text-sage-600 border-stone-300 focus:ring-sage-500" />
+                        <span className="text-stone-700">{t('rsvp.nonAlcoholic')}</span>
+                      </label>
+                    </div>
+                    {fieldError('toastDrink')}
+                  </fieldset>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Message */}
             <div>

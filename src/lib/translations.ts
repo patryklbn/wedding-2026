@@ -15,6 +15,7 @@ export const translations = {
   // Hero
   hero: {
     gettingMarried: { en: "We're Getting Married", pl: 'Bierzemy Ślub' },
+    eveningSubtitle: { en: 'Join us for our Evening Reception', pl: 'Dołączcie do nas na wieczorną recepcję' },
     date: { en: 'Saturday, 28th November 2026', pl: 'Sobota, 28 listopada 2026' },
     location: { en: 'Broxmouth Courtyard, Dunbar, Scotland', pl: 'Broxmouth Courtyard, Dunbar, Szkocja' },
     days: { en: 'Days', pl: 'Dni' },
@@ -65,6 +66,7 @@ export const translations = {
   schedule: {
     heading: { en: 'The Day', pl: 'Plan Dnia' },
     subtitle: { en: 'Wedding Day Schedule', pl: 'Harmonogram dnia ślubu' },
+    subtitleEvening: { en: 'Evening Reception', pl: 'Wieczorna recepcja' },
     disclaimer: {
       en: 'This is the planned timeline for the day — small changes may happen closer to the wedding.',
       pl: 'To planowany harmonogram dnia — drobne zmiany mogą pojawić się bliżej ślubu.',
