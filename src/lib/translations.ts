@@ -79,8 +79,8 @@ export const translations = {
     events: {
       arrival: { en: 'Guest Arrival', pl: 'Przyjazd gości' },
       arrivalDesc: {
-        en: 'Guests arrive at Broxmouth Courtyard. Smart attire or kilts welcome.',
-        pl: 'Goście przybywają do Broxmouth Courtyard. Mile widziane eleganckie stroje lub kilty.',
+        en: 'Guests arrive at Broxmouth Courtyard.',
+        pl: 'Goście przybywają do Broxmouth Courtyard.',
       },
       ceremony: { en: 'Ceremony', pl: 'Ceremonia' },
       ceremonyDesc: {
@@ -187,8 +187,8 @@ export const translations = {
     heading: { en: 'Honeymoon Fund', pl: 'Fundusz na podróż poślubną' },
     subtitle: { en: "If you'd like to contribute", pl: 'Jeśli chcielibyście się dołożyć' },
     text: {
-      en: "Your presence is the greatest gift. If you'd like to contribute to our honeymoon, you can do so via Monzo using the link below. No Monzo account required.",
-      pl: 'Wasza obecność jest najlepszym prezentem. Jeśli chcielibyście dołożyć się do naszej podróży poślubnej, możecie to zrobić przez Monzo korzystając z poniższego linku. Konto Monzo nie jest wymagane.',
+      en: "Having you celebrate with us is the best gift! If you'd like to help us create unforgettable honeymoon memories, we've set up a Monzo fund below. No account required.",
+      pl: 'Wasza obecność to najlepszy prezent! Jeśli chcielibyście pomóc nam stworzyć niezapomniane wspomnienia z miesiąca miodowego, założyliśmy fundusz Monzo poniżej. Konto nie jest wymagane.',
     },
     button: { en: 'Contribute via Monzo', pl: 'Wpłać przez Monzo' },
   },
