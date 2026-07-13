@@ -25,7 +25,7 @@ function googleCalUrl(params: { title: string; start: string; end: string; locat
 
 const weddingGoogleUrl = googleCalUrl({
   title: "Patryk & Becca's Wedding",
-  start: '20261128T130000Z',
+  start: '20261128T120000Z',
   end: '20261129T010000Z',
   location: 'Broxmouth Courtyard, Broxmouth Park, Dunbar, EH42 1QW',
   details: 'Ceremony, cocktails, dinner, speeches, ceilidh and DJ.',
@@ -73,13 +73,13 @@ export default function Schedule() {
 
   const allEvents: EventItem[] = [
     {
-      time: '13:00',
+      time: '12:00',
       title: t('schedule.events.arrival'),
       description: t('schedule.events.arrivalDesc'),
       icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />,
     },
     {
-      time: '14:00',
+      time: '13:00',
       title: t('schedule.events.ceremony'),
       description: t('schedule.events.ceremonyDesc'),
       icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />,

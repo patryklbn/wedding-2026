@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { db } from '@/lib/firebase';
+import { db, auth } from '@/lib/firebase';
 import { collection, onSnapshot, query, orderBy, type Timestamp } from 'firebase/firestore';
+import { signInWithEmailAndPassword, signOut, onAuthStateChanged, type User } from 'firebase/auth';
 
 interface RSVP {
   id: string;
@@ -20,8 +21,6 @@ interface RSVP {
 
 type SortField = 'name' | 'submittedAt' | 'attending' | 'invitationType' | 'numberOfGuests';
 type SortDir = 'asc' | 'desc';
-
-const STORAGE_KEY = 'wedding-admin-auth';
 
 function formatDate(timestamp: Timestamp | null): string {
   if (!timestamp) return '--';
@@ -44,17 +43,22 @@ function escapeCsv(value: string): string {
 
 // ─── Login Screen ────────────────────────────────────────────────
 
-function LoginScreen({ onAuth }: { onAuth: () => void }) {
+function LoginScreen() {
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === process.env.NEXT_PUBLIC_ADMIN_PASSWORD) {
-      localStorage.setItem(STORAGE_KEY, 'true');
-      onAuth();
-    } else {
+    setError(false);
+    setSubmitting(true);
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch {
       setError(true);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -66,6 +70,19 @@ function LoginScreen({ onAuth }: { onAuth: () => void }) {
           <h1 className="font-serif text-2xl text-stone-700">Admin Dashboard</h1>
         </div>
         <div>
+          <label htmlFor="email" className="input-label">Email</label>
+          <input
+            id="email"
+            type="email"
+            value={email}
+            onChange={(e) => { setEmail(e.target.value); setError(false); }}
+            className={`input-field ${error ? 'border-rust-400 focus:ring-rust-400' : ''}`}
+            placeholder="admin@example.com"
+            autoFocus
+            required
+          />
+        </div>
+        <div>
           <label htmlFor="password" className="input-label">Password</label>
           <input
             id="password"
@@ -74,11 +91,13 @@ function LoginScreen({ onAuth }: { onAuth: () => void }) {
             onChange={(e) => { setPassword(e.target.value); setError(false); }}
             className={`input-field ${error ? 'border-rust-400 focus:ring-rust-400' : ''}`}
             placeholder="Enter admin password"
-            autoFocus
+            required
           />
-          {error && <p className="mt-2 text-sm text-rust-600">Incorrect password.</p>}
+          {error && <p className="mt-2 text-sm text-rust-600">Incorrect email or password.</p>}
         </div>
-        <button type="submit" className="w-full btn-primary">Sign In</button>
+        <button type="submit" className="w-full btn-primary" disabled={submitting}>
+          {submitting ? 'Signing in…' : 'Sign In'}
+        </button>
       </form>
     </div>
   );
@@ -393,20 +412,26 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
 // ─── Page ────────────────────────────────────────────────────────
 
 export default function AdminPage() {
-  const [authed, setAuthed] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
 
   useEffect(() => {
-    setAuthed(localStorage.getItem(STORAGE_KEY) === 'true');
-    setMounted(true);
+    const unsub = onAuthStateChanged(auth, (firebaseUser) => {
+      setUser(firebaseUser);
+      setAuthLoading(false);
+    });
+    return unsub;
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem(STORAGE_KEY);
-    setAuthed(false);
-  };
+  const handleLogout = () => signOut(auth);
 
-  if (!mounted) return null;
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-cream-50 flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-sage-300 border-t-sage-600 rounded-full animate-spin" />
+      </div>
+    );
+  }
 
-  return authed ? <Dashboard onLogout={handleLogout} /> : <LoginScreen onAuth={() => setAuthed(true)} />;
+  return user ? <Dashboard onLogout={handleLogout} /> : <LoginScreen />;
 }
