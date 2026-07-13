@@ -1,36 +1,60 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Wedding Website 
+
+A bilingual (EN/PL) wedding platform built with Next.js and Firebase — live in production, serving 110+ guests with RSVP collection and a real-time admin dashboard.
+
+**Live site:** [https://patrykbecca.vercel.app] *(password-protected for guests)*
+
+## Screenshots
+
+**Homepage**
+![Wedding website homepage](./public/images/Screenshot_1.png)
+
+**RSVP Form**
+![RSVP form](./public/images/Screenshot_2.png)
+
+## Features
+
+- **RSVP form** — guest names, email, party size, invitation type (day/evening guest), attendance, dietary requirements, toast preference, and a message for the couple — all with client-side validation
+- **Bilingual support** — full English/Polish content switching via a language context
+- **Admin dashboard** — Firebase Authentication–protected, with a real-time guest list (Firestore listeners), search, filtering by attendance and invitation type, column sorting, and one-click CSV export
+- **Two site versions** — full-day wedding or evening-only reception, toggled by a single environment variable, each with a tailored schedule and RSVP form
+- **Password gate** — simple access gate so the site isn't publicly browsable
+- **Calendar downloads** — .ics files so guests can add the events straight to their calendar
+- **Content sections** — venue, schedule, travel info, gallery, and honeymoon fund
+
+## Tech Stack
+
+- **Frontend:** Next.js 14 (App Router), TypeScript, Tailwind CSS
+- **Backend:** Firebase (Firestore, Authentication)
+- **Deployment:** Vercel
+
+## Security
+
+- Firestore Security Rules validate all RSVP submissions server-side (required fields, correct types)
+- Guest data reads are restricted to authenticated users only — enforced at the database level, not the frontend
+- Admin dashboard is protected by Firebase Authentication (email/password)
+- Updates and deletes on RSVP records are disabled entirely in the rules
 
 ## Getting Started
 
-First, run the development server:
+1. Clone the repo
+2. Copy `.env.local.example` to `.env.local` and fill in your Firebase project credentials
+3. Install dependencies:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+   npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+4. Run the dev server:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+   npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+5. Open [http://localhost:3000](http://localhost:3000)
 
-## Learn More
+## Project Structure
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `src/app` — App Router pages (public site + `/admin` dashboard)
+- `src/components` — Hero, RSVP form, schedule, venue, gallery, and other UI sections
+- `src/lib` — Firebase client config, language context, translations, site version logic
