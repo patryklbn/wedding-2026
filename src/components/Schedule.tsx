@@ -5,6 +5,7 @@ import { isEveningOnly } from '@/lib/siteVersion';
 import { ReactNode } from 'react';
 
 interface EventItem {
+  id?: string;
   time: string;
   title: string;
   description: string;
@@ -29,6 +30,14 @@ const weddingGoogleUrl = googleCalUrl({
   end: '20261129T010000Z',
   location: 'Broxmouth Courtyard, Broxmouth Park, Dunbar, EH42 1QW',
   details: 'Ceremony, cocktails, dinner, speeches, ceilidh and DJ.',
+});
+
+const eveningGoogleUrl = googleCalUrl({
+  title: "Patryk & Becca's Evening Reception",
+  start: '20261128T190000Z',
+  end: '20261129T010000Z',
+  location: 'Broxmouth Courtyard, Broxmouth Park, Dunbar, EH42 1QW',
+  details: 'Evening guests arrive from 19:00. Ceilidh, DJ and dancing.',
 });
 
 const poprawinyGoogleUrl = googleCalUrl({
@@ -103,16 +112,17 @@ export default function Schedule() {
       icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />,
     },
     {
-      time: '20:30',
+      id: 'evening',
+      time: isEveningOnly ? '19:00' : '20:30',
       title: t('schedule.events.evening'),
       description: t('schedule.events.eveningDesc'),
       icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />,
     },
   ];
 
-  // Evening-only version shows only the evening reception event
+  // Evening-only version shows only the evening reception event (guests arrive 19:00)
   const weddingDayEvents = isEveningOnly
-    ? allEvents.filter((e) => e.time === '20:30')
+    ? allEvents.filter((e) => e.id === 'evening')
     : allEvents;
 
   return (
@@ -158,7 +168,11 @@ export default function Schedule() {
             </div>
           </div>
 
-          <CalendarButtons icsPath="/wedding.ics" googleUrl={weddingGoogleUrl} t={t} />
+          <CalendarButtons
+            icsPath={isEveningOnly ? '/evening.ics' : '/wedding.ics'}
+            googleUrl={isEveningOnly ? eveningGoogleUrl : weddingGoogleUrl}
+            t={t}
+          />
         </div>
       </section>
 
